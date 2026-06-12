@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Project</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js"></script>
+</head>
+
+<body>
+
+<header>
+    <h1>Edit Project</h1>
+</header>
+
+<nav>
+    <a href="admin.html">Admin</a>
+    <a href="projects.html">Public Projects</a>
+</nav>
+
+<main>
+
+    <section class="card">
+        <h2>Edit Project</h2>
+
+        <input id="editTitle" placeholder="Project title">
+
+        <br><br>
+
+        <textarea id="editDescription" placeholder="Description"></textarea>
+
+        <br><br>
+
+        <textarea id="editContent" placeholder="Project notes"></textarea>
+
+        <br><br>
+
+        <button onclick="updateProject()">Save Changes</button>
+        <button onclick="deleteProject()">Delete Project</button>
+    </section>
+
+</main>
+
+<script src="edit-project.js"></script>
+
+</body>
+</html>
