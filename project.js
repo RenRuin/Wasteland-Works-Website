@@ -4,8 +4,6 @@ async function loadProject() {
     const params = new URLSearchParams(window.location.search);
     currentProjectId = params.get("id");
 
-    alert("Project ID is: " + currentProjectId);
-
     if (!currentProjectId) {
         document.getElementById("projectTitle").textContent =
             "No Project Selected";
@@ -15,73 +13,102 @@ async function loadProject() {
     const { data, error } = await supabaseClient
         .from("projects")
         .select("*")
-        .eq("id", currentProjectId)
+        .eq("id", Number(currentProjectId))
         .single();
 
     if (error) {
         document.getElementById("projectTitle").textContent =
             "Project Not Found";
-        console.error(error);
         return;
     }
 
     document.getElementById("projectTitle").textContent = data.title;
     document.getElementById("projectDescription").textContent = data.description || "";
     document.getElementById("projectContent").textContent = data.content || "";
-
-    document.getElementById("editTitle").value = data.title || "";
-    document.getElementById("editDescription").value = data.description || "";
-    document.getElementById("editContent").value = data.content || "";
 }
 
-async function updateProject() {
-    const title = document.getElementById("editTitle").value;
-    const description = document.getElementById("editDescription").value;
-    const content = document.getElementById("editContent").value;
-
-    const { error } = await supabaseClient
-        .from("projects")
-        .update({
-            title: title,
-            description: description,
-            content: content
-        })
-        .eq("id", currentProjectId);
-
-    if (error) {
-        alert("Error updating project: " + error.message);
-    } else {
-        alert("Project updated!");
-        loadProject();
-    }
-}
-
-async function deleteProject() {
-    const confirmDelete = confirm(
-        "Are you sure you want to delete this project? This cannot be undone."
-    );
-
-    if (!confirmDelete) {
-        return;
-    }
-
+async function loadNotes() {
     const { data, error } = await supabaseClient
-        .from("projects")
-        .delete()
-        .eq("id", currentProjectId)
-        .select();
+        .from("project_notes")
+        .select("*")
+        .eq("project_id", Number(currentProjectId))
+        .order("created_at", { ascending: false });
+
+    const notesList = document.getElementById("notesList");
 
     if (error) {
-        alert("Error deleting project: " + error.message);
+        notesList.innerHTML = "Error loading notes.";
         return;
     }
 
     if (!data || data.length === 0) {
-        alert("Nothing was deleted. The project may not have matched the ID.");
+        notesList.innerHTML = "<p>No notes yet.</p>";
         return;
     }
 
-    alert("Project deleted.");
-    window.location.href = "projects.html";
+    notesList.innerHTML = "";
+
+    data.forEach(note => {
+        const date = new Date(note.created_at).toLocaleString();
+
+        notesList.innerHTML += `
+            <div class="card">
+                <strong>${date}</strong>
+                <p>${note.note_text}</p>
+            </div>
+        `;
+    });
 }
-loadProject();
+
+async function loadFiles() {
+    const { data, error } = await supabaseClient
+        .from("project_files")
+        .select("*")
+        .eq("project_id", Number(currentProjectId))
+        .order("created_at", { ascending: false });
+
+    const fileList = document.getElementById("fileList");
+
+    if (error) {
+        fileList.innerHTML = "Error loading files.";
+        return;
+    }
+
+    if (!data || data.length === 0) {
+        fileList.innerHTML = "<p>No files uploaded yet.</p>";
+        return;
+    }
+
+    fileList.innerHTML = "";
+
+    data.forEach(file => {
+        if (file.file_type && file.file_type.startsWith("image/")) {
+            fileList.innerHTML += `
+                <div>
+                    <p>${file.file_name}</p>
+
+                    <img src="${file.file_url}"
+                         style="max-width: 250px; border: 1px solid #00ff66;">
+
+                    <br><br>
+
+                    <a href="${file.file_url}" target="_blank">Open File</a>
+                </div>
+                <br>
+            `;
+        } else {
+            fileList.innerHTML += `
+                <p>
+                    <a href="${file.file_url}" target="_blank">
+                        ${file.file_name}
+                    </a>
+                </p>
+            `;
+        }
+    });
+}
+
+loadProject().then(() => {
+    loadNotes();
+    loadFiles();
+});
