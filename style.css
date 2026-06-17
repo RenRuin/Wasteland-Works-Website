@@ -141,6 +141,10 @@ nav {
     text-decoration: none;
 }
 
+.brand-name:visited {
+    color: #00ff66;
+}
+
 .brand-name:hover {
     color: white;
 }
