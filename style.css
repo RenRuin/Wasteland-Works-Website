@@ -133,3 +133,8 @@ nav {
 ```
 
 }
+
+.brand {
+    text-decoration: none;
+    color: inherit;
+}
