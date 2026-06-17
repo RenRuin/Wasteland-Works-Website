@@ -134,7 +134,13 @@ nav {
 
 }
 
-.brand {
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00ff66;
     text-decoration: none;
-    color: inherit;
+}
+
+.brand-name:hover {
+    color: white;
 }
